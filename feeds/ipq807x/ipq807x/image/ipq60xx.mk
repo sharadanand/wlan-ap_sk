@@ -94,12 +94,12 @@ define Device/slink_r680
   DEVICE_DTS := qcom-ipq6018-sl-r678
   DEVICE_DTS_CONFIG := config@cp01-c4
   SUPPORTED_DEVICES := slink,r680
-  DEVICE_PACKAGES := ath11k-wifi-qcom-ipq6018 uboot-envtools kmod-bootconfig e2fsprogs
+  DEVICE_PACKAGES := ath11k-wifi-slink_r680 uboot-envtools kmod-bootconfig e2fsprogs
   BOARDNAME := "SLK-R680"
   IMAGE_SIZE := 27776k
   BLOCKSIZE = 64k
   IMAGES := sysupgrade.tar mmc-factory.bin sysupgrade.bin
-  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs
+  IMAGE/sysupgrade.bin := append-kernel $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE)
 endef
 TARGET_DEVICES += slink_r680
 

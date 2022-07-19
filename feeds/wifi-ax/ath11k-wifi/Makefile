@@ -92,6 +92,11 @@ $(call Package/ath11k-wifi-default)
     TITLE:=motorola q14 bdf
 endef
 
+define Package/ath11k-wifi-slink_r680
+$(call Package/ath11k-wifi-default)
+    TITLE:=slink bdf
+endef
+
 define ath11k-wifi-install-one-to
   $(INSTALL_DIR)  $(2)/lib/firmware/$(3)/
   $(INSTALL_DATA) $(1) $(2)/lib/firmware/$(3)/board.bin
@@ -184,6 +189,11 @@ define Package/ath11k-wifi-motorola-q14/install
 	$(INSTALL_DIR) $(1)/lib/firmware/ath11k/qcn6122/hw1.0/
 	$(INSTALL_DATA) ./board-motorol-q14.bin.IPQ5018 $(1)/lib/firmware/ath11k/IPQ5018/hw1.0/board.bin
 	$(INSTALL_DATA) ./board-2-motorol-q14.bin.QCN6122 $(1)/lib/firmware/ath11k/qcn6122/hw1.0/board-2.bin
+endef
+
+define Package/ath11k-wifi-slink_r680/install
+	$(INSTALL_DIR) $(1)/lib/firmware/ath11k/IPQ6018/hw1.0/
+	$(INSTALL_DATA) ./board-slink_r680.bin.IPQ6018 $(1)/lib/firmware/ath11k/IPQ6018/hw1.0/board-2.bin
 endef
 
 $(eval $(call generate-ath11k-wifi-package,cig-wf188,Cigtech WF188))
