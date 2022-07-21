@@ -101,7 +101,7 @@ do_flash_failsafe_partition() {
         [ -f /proc/boot_info/$mtdname/upgradepartition ] && {
                 default_mtd=$mtdname
                 mtdname=$(cat /proc/boot_info/$mtdname/upgradepartition)
-		echo "SK: Upgrade partion is $mtdname"
+		echo "FWUPGRADE: Upgrade partion is $mtdname"
                 primaryboot=$(cat /proc/boot_info/$default_mtd/primaryboot)
                 if [ $primaryboot -eq 0 ]; then
                         echo 1 > /proc/boot_info/$default_mtd/primaryboot
