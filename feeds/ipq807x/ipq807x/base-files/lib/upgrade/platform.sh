@@ -90,12 +90,95 @@ platform_check_image() {
 	qcom,ipq6018-cp01|\
 	qcom,ipq807x-hk01|\
 	qcom,ipq807x-hk14|\
-	qcom,ipq5018-mp03.3)
+	qcom,ipq5018-mp03.3|\
+	kaiwoo,pax5400)
 		[ "$magic_long" = "73797375" ] && return 0
 		;;
 	esac
 	return 1
 }
+
+do_flash_mtd() {
+	local bin=$1
+	local mtdname=$2
+	local append=""
+
+	local mtdpart=$(grep "\"${mtdname}\"" /proc/mtd | awk -F: '{print $1}')
+
+	local pgsz=$(cat /sys/class/mtd/${mtdpart}/writesize)
+
+	[ -f "$CONF_TAR" -a "$SAVE_CONFIG" -eq 1 -a "$2" == "rootfs" ] && append="-j $CONF_TAR"
+
+	dd if=/tmp/${bin}.bin bs=${pgsz} conv=sync | mtd $append -e "/dev/${mtdpart}" write - "/dev/${mtdpart}"
+}
+
+do_flash_bootconfig() {
+	local bin=$1
+	local mtdname=$2
+
+	# Fail safe upgrade
+	if [ -f /proc/boot_info/getbinary_${bin} ]; then
+		cat /proc/boot_info/getbinary_${bin} > /tmp/${bin}.bin
+		do_flash_mtd $bin $mtdname
+	fi
+}
+
+nand_do_upgrade_success_ipq() {
+	local conf_tar="/tmp/sysupgrade.tgz"
+	sync
+	do_flash_bootconfig bootconfig "0:BOOTCONFIG"
+	do_flash_bootconfig bootconfig1 "0:BOOTCONFIG1"
+	[ -f "$conf_tar" ] && nand_restore_config "$conf_tar"
+	echo "sysupgrade successful"
+	umount -a
+	reboot -f
+}
+
+nand_upgrade_tar_ipq() {
+	local tar_file="$1"
+	local kernel_mtd="$(find_mtd_index $CI_KERNPART)"
+
+	local board_dir=$(tar tf "$tar_file" | grep -m 1 '^sysupgrade-.*/$')
+	board_dir=${board_dir%/}
+
+	kernel_length=$( (tar xf "$tar_file" ${board_dir}/kernel -O | wc -c) 2> /dev/null)
+	local has_rootfs=0
+	local rootfs_length
+	local rootfs_type
+
+	tar tf "$tar_file" ${board_dir}/root 1>/dev/null 2>/dev/null && has_rootfs=1
+	[ "$has_rootfs" = "1" ] && {
+		rootfs_length=$( (tar xf "$tar_file" ${board_dir}/root -O | wc -c) 2> /dev/null)
+		rootfs_type="$(identify_tar "$tar_file" ${board_dir}/root)"
+	}
+
+	local has_kernel=1
+	local has_env=0
+
+	[ "$CI_IPQ807X" = 0 -a "$kernel_length" != 0 -a -n "$kernel_mtd" ] && {
+		tar xf $tar_file ${board_dir}/kernel -O | mtd write - $CI_KERNPART
+	}
+	[ "$CI_IPQ807X" = 0 ] && {
+		[ "$kernel_length" = 0 -o ! -z "$kernel_mtd" ] && has_kernel=
+	}
+
+	nand_upgrade_prepare_ubi "$rootfs_length" "$rootfs_type" "${has_kernel:+$kernel_length}" "$has_env"
+
+	local ubidev="$( nand_find_ubi "$CI_UBIPART" )"
+	[ "$has_kernel" = "1" ] && {
+		local kern_ubivol="$( nand_find_volume $ubidev $CI_KERNPART )"
+		tar xf "$tar_file" ${board_dir}/kernel -O | \
+			ubiupdatevol /dev/$kern_ubivol -s $kernel_length -
+	}
+
+	[ "$has_rootfs" = "1" ] && {
+		local root_ubivol="$( nand_find_volume $ubidev $CI_ROOTPART )"
+		tar xf "$tar_file" ${board_dir}/root -O | \
+			ubiupdatevol /dev/$root_ubivol -s $rootfs_length -
+	}
+	nand_do_upgrade_success_ipq
+}
+
 
 platform_do_upgrade() {
 	CI_UBIPART="rootfs"
@@ -126,7 +209,7 @@ platform_do_upgrade() {
 	wallys,dr6018-v4|\
 	yuncore,ax840|\
 	tplink,ex447|\
-	tplink,ex227)	
+	tplink,ex227)
 		nand_upgrade_tar "$1"
 		;;
 	hfcl,ion4xi|\
@@ -159,6 +242,22 @@ platform_do_upgrade() {
 			fi
 		fi
 		nand_upgrade_tar "$1"
+		;;
+	kaiwoo,pax5400)
+		CI_UBIPART="rootfs"
+
+		#FIXME: Write better code here!
+		[ -f /proc/boot_info/$CI_UBIPART/upgradepartition ] && {
+			primaryboot=$(cat /proc/boot_info/$CI_UBIPART/primaryboot)
+			if [ $primaryboot -eq 0 ]; then
+				echo 1 > /proc/boot_info/$CI_UBIPART/primaryboot
+			else
+				echo 0 > /proc/boot_info/$CI_UBIPART/primaryboot
+			fi
+			CI_UBIPART=$(cat /proc/boot_info/$CI_UBIPART/upgradepartition)
+		}
+
+		nand_upgrade_tar_ipq "$1"
 		;;
 	esac
 }

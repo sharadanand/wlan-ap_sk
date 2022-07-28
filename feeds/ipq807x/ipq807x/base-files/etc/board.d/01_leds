@@ -17,7 +17,8 @@ cig,wf194c4)
         ucidef_set_led_wlan "wlan5g" "WLAN5G" "green:wifi5" "phy0tpt"
         ucidef_set_led_wlan "wlan2g" "WLAN2G" "green:wifi2" "phy1tpt"
 	;;
-edgecore,eap101)
+edgecore,eap101|\
+kaiwoo,pax5400)
         ucidef_set_led_wlan "wlan5g" "WLAN5G" "green:wifi5" "phy0tpt"
         ucidef_set_led_wlan "wlan2g" "WLAN2G" "green:wifi2" "phy1tpt"
 	ucidef_set_led_netdev "lan1" "lan1" "green:lan1" "eth1"

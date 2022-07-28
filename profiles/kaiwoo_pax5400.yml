@@ -1,0 +1,15 @@
+---
+profile: kaiwoo_pax5400
+target: ipq807x
+subtarget: ipq50xx
+description: Build image for the Qualcom MP03.3
+image: bin/targets/ipq807x/ipq807x/openwrt-ipq807x-kaiwoo_pax5400-squashfs-sysupgrade.tar
+feeds:
+  - name: ipq807x
+    path: ../../feeds/ipq807x
+include:
+  - wifi-ax
+  - ucentral-ap
+diffconfig: |
+  CONFIG_KERNEL_IPQ_MEM_PROFILE=0
+

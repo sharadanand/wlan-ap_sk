@@ -1,0 +1,14 @@
+diff --git a/drivers/mtd/nand/qcom_nandc.c b/drivers/mtd/nand/qcom_nandc.c
+index eb420151..2cec0a3b 100644
+--- a/drivers/mtd/nand/qcom_nandc.c
++++ b/drivers/mtd/nand/qcom_nandc.c
+@@ -408,6 +408,9 @@ struct nand_flash_dev qspinand_flash_ids[] = {
+ 	{"W25N01GW SPI NAND 1.8V 1G-BIT",
+ 		{ .id = {0xef, 0xba} },
+ 		SZ_2K, SZ_128, SZ_128K, 0, 2, 64, NAND_ECC_INFO(4, SZ_512), 0},
++	{"MX35UF1GE4AD-Z4I SPI NAND 1G 1.8V",
++		{ .id = {0xc2, 0xb7} },
++		SZ_4K, SZ_512, SZ_256K, 0, 2, 256, NAND_ECC_INFO(8, SZ_512), 0},
+ 	{NULL}
+ };
+ 

@@ -61,7 +61,8 @@ qcom_setup_interfaces()
 		ucidef_set_interface_wan "eth0"
 		;;
 	cybertan,eww622-a1|\
-	qcom,ipq5018-mp03.1)
+	qcom,ipq5018-mp03.1|\
+	kaiwoo,pax5400)
 		ucidef_set_interface_lan "eth1"
 		ucidef_set_interface_wan "eth0"
 		ucidef_add_switch "switch1"

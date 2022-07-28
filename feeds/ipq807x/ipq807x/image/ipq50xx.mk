@@ -46,3 +46,18 @@ define Device/qcom_mp03_3
   DEVICE_DTS_CONFIG := config@mp03.3
 endef
 TARGET_DEVICES += qcom_mp03_3
+
+define Device/kaiwoo_pax5400
+  DEVICE_TITLE := PAX5400
+  DEVICE_DTS := qcom-ipq5018-pax5400
+  #DEVICE_DTS := qcom-ipq5018-mp03.5-c1
+  SUPPORTED_DEVICES := kaiwoo,pax5400
+  DEVICE_PACKAGES := ath11k-wifi-pax5400-ipq5018 ath11k-firmware-qcn6122 ath11k-firmware-ipq50xx-spruce \
+	kmod-bootconfig
+  DEVICE_DTS_CONFIG := config@mp03.5-c1
+  IMAGE/nand-factory.bin := append-ubi
+  BLOCKSIZE := 256k
+  PAGESIZE := 4096
+endef
+TARGET_DEVICES += kaiwoo_pax5400
+
