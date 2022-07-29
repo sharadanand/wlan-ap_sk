@@ -39,6 +39,7 @@ ALLWIFIBOARDS:= \
 	wallys-dr6018-v4 \
 	tplink-ex227 \
 	tplink-ex447 \
+	slink_r680 \
 	yuncore-ax840
 
 ALLWIFIPACKAGES:=$(foreach BOARD,$(ALLWIFIBOARDS),ath11k-wifi-$(BOARD))
@@ -89,6 +90,11 @@ endef
 define Package/ath11k-wifi-motorola-q14
 $(call Package/ath11k-wifi-default)
     TITLE:=motorola q14 bdf
+endef
+
+define Package/ath11k-wifi-slink_r680
+$(call Package/ath11k-wifi-default)
+    TITLE:=slink bdf
 endef
 
 define ath11k-wifi-install-one-to
@@ -185,6 +191,11 @@ define Package/ath11k-wifi-motorola-q14/install
 	$(INSTALL_DATA) ./board-2-motorol-q14.bin.QCN6122 $(1)/lib/firmware/ath11k/qcn6122/hw1.0/board-2.bin
 endef
 
+define Package/ath11k-wifi-slink_r680/install
+	$(INSTALL_DIR) $(1)/lib/firmware/ath11k/IPQ6018/hw1.0/
+	$(INSTALL_DATA) ./board-slink_r680.bin.IPQ6018 $(1)/lib/firmware/ath11k/IPQ6018/hw1.0/board-2.bin
+endef
+
 $(eval $(call generate-ath11k-wifi-package,cig-wf188,Cigtech WF188))
 $(eval $(call generate-ath11k-wifi-package,cig-wf188n,Cigtech WF188n))
 $(eval $(call generate-ath11k-wifi-package,cig-wf194c,Cigtech WF194c))
@@ -200,6 +211,7 @@ $(eval $(call generate-ath11k-wifi-package,edgecore-eap104,Edgecore EAP104))
 $(eval $(call generate-ath11k-wifi-package,tplink-ex227,TP-Link EX227))
 $(eval $(call generate-ath11k-wifi-package,tplink-ex447,TP-Link EX447))
 $(eval $(call generate-ath11k-wifi-package,yuncore-ax840,YunCore AX840))
+$(eval $(call generate-ath11k-wifi-package,slink_r680,SL r680))
 
 $(foreach PACKAGE,$(ALLWIFIPACKAGES),$(eval $(call BuildPackage,$(PACKAGE))))
 $(eval $(call BuildPackage,ath11k-wifi-qcom-ipq5018))
